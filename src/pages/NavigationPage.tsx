@@ -12,24 +12,28 @@ export interface Page {
 
 const NavigationPage = ({ pages }: { pages: Page[] }) => {
   const [pageHistory, setPageHistory] = useSessionStorage<number[]>("pageHistoryIndex", [0]);
-  const [currentClick, setCurrentClick] = useState(true);
+  const [direction, setDirection] = useState("right");
   const currentPageIndex = pageHistory[pageHistory.length - 1];
   const currentPage = pages[currentPageIndex];
   const prevPage = pages[currentPageIndex - 1];
 
-  const handlePrevClick = () => {
-    if (pageHistory.length > 1) {
-      const newHistory = pageHistory.slice(0, -1);
-      setPageHistory(newHistory);
-      setCurrentClick(false);
-    }
-  };
-
   const handleNextClick = () => {
     const nextPageIndex = currentPageIndex + 1;
     if (pages.length > nextPageIndex) {
-      setPageHistory([...pageHistory, nextPageIndex]);
-      setCurrentClick(true);
+      setDirection("right");
+      setTimeout(() => {
+        setPageHistory([...pageHistory, nextPageIndex]);
+      }, 0);
+    }
+  };
+
+  const handlePrevClick = () => {
+    if (pageHistory.length > 1) {
+      const newHistory = pageHistory.slice(0, -1);
+      setDirection("left");
+      setTimeout(() => {
+        setPageHistory(newHistory);
+      }, 0);
     }
   };
 
@@ -43,7 +47,7 @@ const NavigationPage = ({ pages }: { pages: Page[] }) => {
       <TransitionGroup className='content-screen'>
         <CSSTransition
           key={currentPageIndex}
-          classNames={currentClick ? "right" : "left"}
+          classNames={direction}
           timeout={300}
           unmountOnExit>
           <ContentBox>
